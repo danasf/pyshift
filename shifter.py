@@ -12,9 +12,10 @@ class Shifter(object):
         # sel1,sel2,sel3 - row select bits 1 MSB, 3 LSB
         # oe - set high to supress display
 
-        def __init__(self,data,clock,latch,sel1,sel2,sel3,oe):
+        def __init__(self,data1,data2,clock,latch,sel1,sel2,sel3,oe):
                 self.size = 32
-                self.data = data
+                self.data1 = data1
+                self.data2 = data2
                 self.clock = clock
                 self.latch = latch
                 self.sel1 = sel1
@@ -22,7 +23,8 @@ class Shifter(object):
                 self.sel3 = sel3
                 self.oe = oe
 
-                GPIO.setup(self.data, GPIO.OUT) # data RED1
+                GPIO.setup(self.data1, GPIO.OUT) # data RED1
+                GPIO.setup(self.data2, GPIO.OUT) # data RED2
                 GPIO.setup(self.clock, GPIO.OUT) # clock
                 GPIO.setup(self.latch, GPIO.OUT) # latch
 
@@ -46,31 +48,49 @@ class Shifter(object):
 
 
         # send a single bit
-        def sendBit(self,state):
+        def sendBit(self,pin,state):
                 if state is True:
-                        GPIO.output(self.data,GPIO.HIGH) # SET dat HIGH
+                        GPIO.output(pin,GPIO.HIGH) # SET dat HIGH
                 else:
-                        GPIO.output(self.data,GPIO.LOW) # SET data LOW
+                        GPIO.output(pin,GPIO.LOW) # SET data LOW
                 GPIO.output(self.clock,GPIO.LOW) # Clock to LOW
                 GPIO.output(self.clock,GPIO.HIGH) # clock to HIGH
 
+        # send a two bit
+        def sendTwoBits(self,pin1,pin2,state1,state2):
+                if state1 is True:
+                        GPIO.output(pin1,GPIO.HIGH) # SET dat HIGH
+                else:
+                        GPIO.output(pin1,GPIO.LOW) # SET data LOW
+                if state2 is True:
+                        GPIO.output(pin2,GPIO.HIGH) # SET dat HIGH
+                else:
+                        GPIO.output(pin2,GPIO.LOW) # SET data LOW
+
+
+                GPIO.output(self.clock,GPIO.LOW) # Clock to LOW
+                GPIO.output(self.clock,GPIO.HIGH) # clock to HIGH
+
+
         # send line of bits
-        def bitFill(self,filled):
+        def bitFill(self,pin,filled):
                 x = 0
                 # while less than panel size
                 while x < self.size-1:
                         # for up to filled value, on
                         for i in xrange(0,filled):
-                                self.sendBit(True)
+                                self.sendBit(pin,True)
                                 x += 1
                         # fill the rest of the bits, off        
                         for i in xrange(filled,self.size):
-                                self.sendBit(False)
+                                self.sendBit(pin,False)
                                 x +=1
 
         # set row(s) given decimal number
         def selRow(self,myState):
-                
+                if myState > 7:
+                        myState = myState-8
+
                 if myState is 0:
                         self.select(False,False,False)
                 elif myState is 1:

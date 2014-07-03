@@ -1,33 +1,36 @@
 # BBB pinout
 # http://insigntech.files.wordpress.com/2013/09/bbb_pinouts.jpg
-
+# test
 from shifter import Shifter
 import time
 
 
-# DATA (R1), CLOCK, LATCH, SelA, SelB, SelC
-s = Shifter("P8_7","P8_9","P8_11","P8_8","P8_10","P8_12")
-count = 0
-# set to off
-s.bitArrayFill(0)
+# DATA (R1), DATA2 (R2), CLOCK, LATCH, SelA, SelB, SelC,OE
+s = Shifter("P8_7","P8_13","P8_9","P8_11","P8_8","P8_10","P8_12","P8_14")
+
 while True:
-        myState = s.isEven(count)
-        for x in xrange(0,32):
-                fillRow(s,1)
+        count = 0
+        while count < 16:
+
+                # select data pin 
+                if count < 8:
+                        pin = s.data1
+                else:
+                        pin = s.data2
+
+                # select
+                if count % 2 is 0:
+                        s.sendBit(pin,True)
+                        s.sendBit(pin,True)
+                        s.sendBit(pin,False)
+                        s.sendBit(pin,False)                        
+                else:
+                        s.sendBit(pin,False)
+                        s.sendBit(pin,False)  
+                        s.sendBit(pin,True)
+                        s.sendBit(pin,True)
+                
                 s.latchData()
-
-        count += 1
-
-
-# simple cycle on and off
-def onOff(s,delay):
-        
-# fill row
-def fillRow(s,delay):
-        print "filling with", x, "HIGH bits"
-        s.bitArrayFill(x)
-        s.latchData()
-        time.sleep(delay)
-
-
+                s.selRow(count)
+                count += 1
 
