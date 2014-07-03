@@ -48,29 +48,19 @@ class Shifter(object):
 
 
         # send a single bit
-        def sendBit(self,pin,state):
+        def sendBit(self,pin,state,clockIn=True):
                 if state is True:
                         GPIO.output(pin,GPIO.HIGH) # SET dat HIGH
                 else:
                         GPIO.output(pin,GPIO.LOW) # SET data LOW
+
+                if clockIn:
+                        self.clockIn()
+
+        # clock in the bit
+        def clockIn(self):
                 GPIO.output(self.clock,GPIO.LOW) # Clock to LOW
                 GPIO.output(self.clock,GPIO.HIGH) # clock to HIGH
-
-        # send a two bit
-        def sendTwoBits(self,pin1,pin2,state1,state2):
-                if state1 is True:
-                        GPIO.output(pin1,GPIO.HIGH) # SET dat HIGH
-                else:
-                        GPIO.output(pin1,GPIO.LOW) # SET data LOW
-                if state2 is True:
-                        GPIO.output(pin2,GPIO.HIGH) # SET dat HIGH
-                else:
-                        GPIO.output(pin2,GPIO.LOW) # SET data LOW
-
-
-                GPIO.output(self.clock,GPIO.LOW) # Clock to LOW
-                GPIO.output(self.clock,GPIO.HIGH) # clock to HIGH
-
 
         # send line of bits
         def bitFill(self,pin,filled):

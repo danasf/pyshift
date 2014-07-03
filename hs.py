@@ -10,17 +10,18 @@ s = Shifter("P8_7","P8_13","P8_9","P8_11","P8_8","P8_10","P8_12","P8_14")
 while True:
         count = 0
         pin = s.data1
-        while count < 16:
+        while count < 8:
                 s.selRow(count)
-                if count < 8:
-                        pin = s.data1
-                else:
-                        pin = s.data2
-
-                for c in bitMap[count]:
-                        if c is "1":
-                                s.sendBit(pin,True)
+                for x in xrange(0,31):
+                        if bitMap[count][x] is "1":
+                                s.sendBit(s.data1,True,False)
                         else:
-                                s.sendBit(pin,False)
+                                s.sendBit(s.data1,False,False)
+
+                        if bitMap[count+7][x] is "1":
+                                s.sendBit(s.data2,True,False)
+                        else:
+                                s.sendBit(s.data2,False,False)
+                        s.clockIn()
                 s.latchData()
                 count += 1
